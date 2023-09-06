@@ -8,43 +8,69 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
-import woojin.projects.youtubeapplication.data.Videos
+import woojin.projects.youtubeapplication.model.Videos
 import woojin.projects.youtubeapplication.databinding.ActivityMainBinding
+import woojin.projects.youtubeapplication.model.Youtuber
 import woojin.projects.youtubeapplication.service.RetrofitService
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+    //lazy 선언을 통해서 binding
+    private val binding: ActivityMainBinding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
+
+    //private lateinit var videoAdapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.pexels.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        val retrofitService = setRetrofitService()
+        getVideo(retrofitService)
 
-        val retrofitService = retrofit.create(RetrofitService::class.java)
+        //videoAdapter = VideoAdapter()
 
-        binding.button.setOnClickListener {
-            retrofitService.getVideos().enqueue(object : Callback<Videos> {
-                override fun onResponse(call: Call<Videos>, response: Response<Videos>) {
-                    if (response.isSuccessful) {
-                        //Pexels에서 받아온 영상 리스트 대입
-                        val link = response.body()?.videos?.map { videoDatas ->
-                            videoDatas.videoFiles.first().link
-                        }
-                    } else {
-                        Log.e("MainActivity", "오류")
-                    }
-                }
-
-                override fun onFailure(call: Call<Videos>, t: Throwable) {
-                    Log.e("MainActivity", "${t.printStackTrace()}")
-                }
-            })
-        }
+//        binding.videoListRecyclerView.apply {
+//            layoutManager = LinearLayoutManager(context)
+//            adapter = videoAdapter
+//        }
 
     }
+
+
+}
+
+private fun getVideo(retrofitService: RetrofitService) {
+    retrofitService.getVideos().enqueue(object : Callback<Videos> {
+        override fun onResponse(call: Call<Videos>, response: Response<Videos>) {
+            if (response.isSuccessful) {
+                //Pexels에서 받아온 영상 리스트 대입
+                val list = response.body()?.videos?.map { videoDatas ->
+                    Youtuber(
+                        videoDatas.videoFiles.first().link,
+                        videoDatas.user.name,
+                        videoDatas.image
+                    )
+                }
+                //가져온 정보 link와 사용자 이름 추출 하여 데이터 클래스 대입
+                Log.e("testt", list.toString())
+            } else {
+                Log.e("MainActivity", "오류")
+            }
+        }
+
+        override fun onFailure(call: Call<Videos>, t: Throwable) {
+            Log.e("MainActivity", "${t.printStackTrace()}")
+        }
+    })
+
+}
+
+private fun setRetrofitService(): RetrofitService {
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.pexels.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val retrofitService = retrofit.create(RetrofitService::class.java)
+    return retrofitService
 }
