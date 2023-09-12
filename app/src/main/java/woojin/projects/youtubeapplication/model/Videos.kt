@@ -30,8 +30,8 @@ data class VideoFiles(
     val link: String
 )
 
-data class Youtuber(
-    val link: String,
+data class YoutuberItem(
+    val url: String,
     val name: String,
     val image: String,
 )

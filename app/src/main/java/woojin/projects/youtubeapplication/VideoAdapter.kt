@@ -8,14 +8,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import woojin.projects.youtubeapplication.databinding.ItemVideoBinding
-import woojin.projects.youtubeapplication.model.Youtuber
+import woojin.projects.youtubeapplication.model.YoutuberItem
 
-class VideoAdapter(private val context: Context) :
-    ListAdapter<Youtuber, VideoAdapter.ViewHolder>(diffUtil) {
+class VideoAdapter(private val context: Context, private val onClick: (YoutuberItem) -> Unit) :
+    ListAdapter<YoutuberItem, VideoAdapter.ViewHolder>(diffUtil) {
 
     inner class ViewHolder(private val binding: ItemVideoBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Youtuber) {
+
+        fun bind(item: YoutuberItem) {
             Glide.with(binding.videoThumbnailImageView)
                 .load(item.image)
                 .into(binding.videoThumbnailImageView)
@@ -26,6 +27,9 @@ class VideoAdapter(private val context: Context) :
 
             binding.titleTextView.text = "제목"
             binding.nameTextView.text = context.getString(R.string.video_info, item.name)
+            binding.root.setOnClickListener {
+                onClick.invoke(item)
+            }
         }
     }
 
@@ -44,12 +48,12 @@ class VideoAdapter(private val context: Context) :
     }
 
     companion object {
-        val diffUtil = object : ItemCallback<Youtuber>() {
-            override fun areItemsTheSame(oldItem: Youtuber, newItem: Youtuber): Boolean {
+        val diffUtil = object : ItemCallback<YoutuberItem>() {
+            override fun areItemsTheSame(oldItem: YoutuberItem, newItem: YoutuberItem): Boolean {
                 return oldItem === newItem
             }
 
-            override fun areContentsTheSame(oldItem: Youtuber, newItem: Youtuber): Boolean {
+            override fun areContentsTheSame(oldItem: YoutuberItem, newItem: YoutuberItem): Boolean {
                 return oldItem == newItem
             }
         }
