@@ -3,10 +3,8 @@ package woojin.projects.youtubeapplication
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.constraintlayout.widget.ConstraintSet.Motion
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -41,8 +39,8 @@ class MainActivity : AppCompatActivity() {
         getVideo(retrofitService)
 
         initMotionLayout()
-        initVideoRecyclerView()
-        initPlayerVideoRecyclerView()
+        initMainVideoRecyclerView()
+        initDetailVideoRecyclerView()
         initControlButton()
         initHideButton()
     }
@@ -67,10 +65,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initVideoRecyclerView() {
+    private fun initMainVideoRecyclerView() {
         videoAdapter = VideoAdapter(context = this) { youtuberItem ->
             binding.motionLayout.setTransition(R.id.collapse, R.id.expand)
             binding.motionLayout.transitionToEnd()
+
+            //생각해야할 점
+            val list = listOf(youtuberItem) + videoList.filter {
+                it.url != youtuberItem.url
+            }
+            videoDetailAdapter.submitList(list)
+            
             play(youtuberItem)
         }
 
@@ -80,10 +85,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initPlayerVideoRecyclerView() {
+    private fun initDetailVideoRecyclerView() {
         videoDetailAdapter = VideoDetailAdapter(context = this) { youtuberItem ->
             play(youtuberItem)
         }
+
         binding.playerRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = videoDetailAdapter
