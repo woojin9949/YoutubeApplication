@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
     private lateinit var videoAdapter: VideoAdapter
+    private lateinit var videoDetailAdapter: VideoDetailAdapter
 
     private lateinit var videoList: List<YoutuberItem>
 
@@ -41,10 +42,11 @@ class MainActivity : AppCompatActivity() {
 
         initMotionLayout()
         initVideoRecyclerView()
+        initPlayerVideoRecyclerView()
         initControlButton()
         initHideButton()
-
     }
+
 
     private fun initHideButton() {
         binding.hideButton.setOnClickListener {
@@ -75,6 +77,16 @@ class MainActivity : AppCompatActivity() {
         binding.videoListRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = videoAdapter
+        }
+    }
+
+    private fun initPlayerVideoRecyclerView() {
+        videoDetailAdapter = VideoDetailAdapter(context = this) { youtuberItem ->
+            play(youtuberItem)
+        }
+        binding.playerRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = videoDetailAdapter
         }
     }
 
