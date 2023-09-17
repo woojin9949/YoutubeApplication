@@ -8,6 +8,7 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerControlView
 import androidx.recyclerview.widget.LinearLayoutManager
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,7 +25,11 @@ class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
+
+    //Main화면 리스트업
     private lateinit var videoAdapter: VideoAdapter
+
+    //특정 동영상 클릭 시, 세부 리스트업 -> 영상 정보,선택한 영상을 제외한 영상 리스트업
     private lateinit var videoDetailAdapter: VideoDetailAdapter
 
     private lateinit var videoList: List<YoutuberItem>
@@ -43,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         initDetailVideoRecyclerView()
         initControlButton()
         initHideButton()
+
     }
 
 
@@ -70,12 +76,16 @@ class MainActivity : AppCompatActivity() {
             binding.motionLayout.setTransition(R.id.collapse, R.id.expand)
             binding.motionLayout.transitionToEnd()
 
-            //생각해야할 점
+            //클릭시 해당 아이템을 리스트로 생성 후, videoList에서 클릭한 영상과 동일한 영상인경우
+            //Filtering을 통해 제외
+            // (구조)
+            //첫번째 Recycler는 헤더 => 즉, 해당 영상정보를 보여주기위해 listOf(youtuberItem)사용
+            //두번째 Recycler부터는 나머지 영상들 리스트업
             val list = listOf(youtuberItem) + videoList.filter {
                 it.url != youtuberItem.url
             }
             videoDetailAdapter.submitList(list)
-            
+
             play(youtuberItem)
         }
 
@@ -88,18 +98,25 @@ class MainActivity : AppCompatActivity() {
     private fun initDetailVideoRecyclerView() {
         videoDetailAdapter = VideoDetailAdapter(context = this) { youtuberItem ->
             play(youtuberItem)
+            val list = listOf(youtuberItem) + videoList.filter {
+                it.url != youtuberItem.url
+            }
+            //Background에서 실행되므로 기다렸다가 scrollToPosition을 해야함
+            videoDetailAdapter.submitList(list) {
+                binding.playerRecyclerView.scrollToPosition(0)
+            }
         }
 
         binding.playerRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = videoDetailAdapter
+            itemAnimator = null
         }
     }
 
     private fun initMotionLayout() {
         binding.motionLayout.targetView = binding.videoPlayerContainer
         binding.motionLayout.jumpToState(R.id.hide)
-
         binding.motionLayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionStarted(
                 motionLayout: MotionLayout?,
@@ -165,10 +182,12 @@ class MainActivity : AppCompatActivity() {
                 binding.playerView.player = exoPlayer
                 binding.playerView.useController = false
 
+                //ExoPlayer에 리스너 장착-> 플레이 중인지 확인
+                //Play인 경우 => controlButton pause로 변경
+                //Pause인 경우 => controlButton play로 변경
                 exoPlayer.addListener(object : Player.Listener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         super.onIsPlayingChanged(isPlaying)
-
                         if (isPlaying) {
                             binding.controlButton.setImageResource(R.drawable.baseline_pause_24)
                         } else {

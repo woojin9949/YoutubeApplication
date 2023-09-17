@@ -8,7 +8,9 @@
         motion:duration="300"
         motion:motionInterpolator="linear">
 
-        <OnSwipe motion:touchAnchorId="@id/videoPlayerContainer" />
+        <OnSwipe
+            motion:touchAnchorId="@id/videoPlayerContainer"
+            motion:touchRegionId="@id/videoPlayerContainer" />
         <OnClick
             motion:clickAction="transitionToEnd"
             motion:targetId="@id/videoPlayerContainer" />
@@ -43,8 +45,8 @@
     </Transition>
 
     <Transition
-        motion:constraintSetStart="@+id/collapse"
         motion:constraintSetEnd="@+id/hide"
+        motion:constraintSetStart="@+id/collapse"
         motion:duration="300" />
 
     <ConstraintSet android:id="@+id/expand">

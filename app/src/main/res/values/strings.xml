@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">Youtube</string>
-    <string name="video_info">%1$s · 조회수: 10만회 · 3개월 전</string>
-    <string name="header_video_info">조회수: 10만회 · 3개월 전</string>
+    <string name="video_info">%1$s · 조회수 10만회 · 3개월 전</string>
+    <string name="header_video_info">조회수 10만회 · 3개월 전</string>
     <string name="home">홈</string>
     <string name="storage">보관함</string>
+    <string name="play_pause">재생/정지버튼</string>
+    <string name="rewind">뒤로감기</string>
+    <string name="fast_forward">앞으로 감기</string>
+    <string name="divider">/</string>
 </resources>
